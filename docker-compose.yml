@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: alwayshere
+      POSTGRES_PASSWORD: alwayshere
+      POSTGRES_DB: alwayshere
+    ports:
+      - "5439:5432"
+    volumes:
+      - alwayshere_pgdata:/var/lib/postgresql/data
+
+volumes:
+  alwayshere_pgdata:
