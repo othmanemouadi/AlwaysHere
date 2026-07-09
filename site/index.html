@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AlwaysHere — AI receptionist for missed calls</title>
+<meta name="description" content="An AI receptionist that answers your missed business calls, speaks your customers' language, answers questions, captures leads, and books appointments — 24/7.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314b8a6'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle'%3E%E2%98%8E%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #020617; --panel: #0f172a; --panel-soft: rgba(15, 23, 42, .5);
+    --border: #1e293b; --border-soft: #334155;
+    --text: #f1f5f9; --muted: #94a3b8; --faint: #64748b;
+    --teal: #14b8a6; --teal-bright: #2dd4bf; --teal-hover: #0d9488;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  a { text-decoration: none; color: inherit; }
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  header.site { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 0; }
+  .logo { display: flex; align-items: center; gap: .5rem; font-weight: 600; font-size: 1.125rem; letter-spacing: -.01em; }
+  .logo-mark { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: .5rem; background: var(--teal); color: var(--bg); }
+  nav.site { display: flex; align-items: center; gap: .75rem; }
+  .btn { display: inline-block; border-radius: .5rem; padding: .5rem 1rem; font-size: .875rem; font-weight: 500; }
+  .btn-ghost { color: #cbd5e1; }
+  .btn-ghost:hover { color: #fff; }
+  .btn-primary { background: var(--teal); color: var(--bg); font-weight: 600; }
+  .btn-primary:hover { background: var(--teal-bright); }
+
+  .hero { padding: 4rem 0 5rem; text-align: center; }
+  .badge {
+    display: inline-block; margin-bottom: 1.5rem; padding: .25rem 1rem; border-radius: 9999px;
+    border: 1px solid rgba(20, 184, 166, .4); background: rgba(20, 184, 166, .1);
+    color: #5eead4; font-size: .875rem;
+  }
+  h1 { max-width: 48rem; margin: 0 auto; font-size: clamp(2.25rem, 6vw, 3.75rem); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
+  h1 .accent { color: var(--teal-bright); }
+  .hero p.sub { max-width: 42rem; margin: 1.5rem auto 0; font-size: 1.125rem; color: var(--muted); }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; margin-top: 2.5rem; }
+  .cta { border-radius: .75rem; padding: .75rem 1.5rem; font-size: 1rem; font-weight: 600; }
+  .cta-primary { background: var(--teal); color: var(--bg); }
+  .cta-primary:hover { background: var(--teal-bright); }
+  .cta-secondary { border: 1px solid var(--border-soft); color: #cbd5e1; font-weight: 500; }
+  .cta-secondary:hover { border-color: var(--faint); color: #fff; }
+
+  section.band { border-top: 1px solid var(--border); background: var(--panel-soft); }
+  .section { padding: 5rem 0; }
+  h2 { text-align: center; font-size: clamp(1.5rem, 4vw, 1.875rem); font-weight: 700; letter-spacing: -.01em; }
+  .section-sub { margin-top: .75rem; text-align: center; color: var(--muted); }
+
+  .grid { display: grid; gap: 1.5rem; margin-top: 3rem; grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 56rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 36rem) { .grid { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--border); background: var(--panel); border-radius: 1rem; padding: 1.5rem; }
+  .step-num {
+    display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem;
+    border-radius: 9999px; background: rgba(20, 184, 166, .15); color: var(--teal-bright);
+    font-size: .875rem; font-weight: 700;
+  }
+  .card h3 { margin-top: 1rem; font-size: 1rem; font-weight: 600; color: #fff; }
+  .card.feature h3 { margin-top: 0; color: var(--teal-bright); }
+  .card p { margin-top: .5rem; font-size: .875rem; color: var(--muted); }
+  ol.grid { list-style: none; }
+
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: 2rem; }
+  .chip { border: 1px solid var(--border-soft); background: var(--panel); border-radius: 9999px; padding: .5rem 1rem; font-size: .875rem; color: #cbd5e1; }
+
+  .cta-final { padding: 6rem 0; text-align: center; }
+  .cta-final p { max-width: 36rem; margin: 1rem auto 0; color: var(--muted); }
+  .cta-final .cta-primary { display: inline-block; margin-top: 2rem; border-radius: .75rem; padding: 1rem 2rem; font-size: 1.125rem; font-weight: 600; }
+
+  footer.site { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; font-size: .875rem; color: var(--faint); }
+  footer.site a { color: var(--muted); text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="site">
+    <div class="logo"><span class="logo-mark">☎</span> AlwaysHere</div>
+    <nav class="site">
+      <a class="btn btn-ghost" href="https://github.com/othmanemouadi/AlwaysHere">GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/othmanemouadi/AlwaysHere#local-setup">Get started</a>
+    </nav>
+  </header>
+</div>
+
+<section class="hero wrap">
+  <span class="badge">Every missed call is a customer deciding to call your competitor</span>
+  <h1>Never lose a customer because you <span class="accent">missed the phone</span></h1>
+  <p class="sub">AlwaysHere is an AI receptionist that answers your missed business calls, speaks your
+    customers&rsquo; language, answers their questions, captures leads, and books appointments — 24/7.</p>
+  <div class="hero-actions">
+    <a class="cta cta-primary" href="https://github.com/othmanemouadi/AlwaysHere#local-setup">Set up your AI receptionist</a>
+    <a class="cta cta-secondary" href="#how-it-works">How it works</a>
+  </div>
+</section>
+
+<section class="band" id="how-it-works">
+  <div class="wrap section">
+    <h2>How it works</h2>
+    <p class="section-sub">No new hardware, no app for your customers, nothing to install.</p>
+    <ol class="grid">
+      <li class="card"><span class="step-num">1</span><h3>Customer calls your business</h3><p>Your number, your line — nothing changes for callers.</p></li>
+      <li class="card"><span class="step-num">2</span><h3>You can&rsquo;t pick up</h3><p>Busy chair, after hours, out on a job.</p></li>
+      <li class="card"><span class="step-num">3</span><h3>The call forwards automatically</h3><p>Carrier-level conditional forwarding to your AlwaysHere number.</p></li>
+      <li class="card"><span class="step-num">4</span><h3>The AI answers in their language</h3><p>Trained on your services, prices, hours and policies.</p></li>
+      <li class="card"><span class="step-num">5</span><h3>It answers, books, or escalates</h3><p>Questions answered, appointments booked, urgent calls flagged instantly.</p></li>
+      <li class="card"><span class="step-num">6</span><h3>You get the summary by SMS</h3><p>Who called, what they needed, what happened — plus the full transcript.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="wrap section">
+  <h2>A receptionist that never sleeps, for less than an hour of staff time</h2>
+  <div class="grid">
+    <div class="card feature"><h3>24/7 answering</h3><p>Every missed call is answered in seconds, day or night.</p></div>
+    <div class="card feature"><h3>Multilingual</h3><p>English, Spanish, French, German, Portuguese, Italian, Mandarin, Arabic, Hindi — switched mid-call automatically.</p></div>
+    <div class="card feature"><h3>Appointment booking</h3><p>Real availability from your opening hours and calendar, confirmed by SMS.</p></div>
+    <div class="card feature"><h3>Lead capture</h3><p>Name, number and reason for calling saved for every caller you&rsquo;d have lost.</p></div>
+    <div class="card feature"><h3>Your knowledge base</h3><p>FAQs, services and pricing you control from a simple dashboard.</p></div>
+    <div class="card feature"><h3>Urgent escalation</h3><p>Emergencies trigger an instant SMS alert to your phone.</p></div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap section" style="text-align:center">
+    <h2>Built for businesses that live on the phone</h2>
+    <div class="chips">
+      <span class="chip">Dental clinics</span><span class="chip">Medical practices</span>
+      <span class="chip">Auto repair</span><span class="chip">Salons &amp; barbers</span>
+      <span class="chip">Plumbing</span><span class="chip">Electricians</span>
+      <span class="chip">HVAC</span><span class="chip">Real estate</span>
+      <span class="chip">Law firms</span><span class="chip">Cleaning services</span>
+    </div>
+  </div>
+</section>
+
+<section class="wrap cta-final">
+  <h2 style="font-size:clamp(1.875rem, 5vw, 2.25rem)">Your next missed call could be answered</h2>
+  <p>Create your business profile, add your FAQs and hours, and forward your missed calls.
+    It takes about ten minutes.</p>
+  <a class="cta-primary cta" href="https://github.com/othmanemouadi/AlwaysHere#local-setup">Get started free</a>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    © <span id="year">2026</span> AlwaysHere. Never miss another customer call. ·
+    <a href="https://github.com/othmanemouadi/AlwaysHere">Source on GitHub</a>
+  </div>
+</footer>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
