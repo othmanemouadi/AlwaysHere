@@ -233,6 +233,28 @@
   footer { border-top: 1px solid rgba(255,255,255,.05); padding: 2.5rem 0; text-align: center; font-size: .875rem; color: var(--faint); }
   footer a { color: var(--mist); text-decoration: underline; }
 
+  /* Signup form */
+  [hidden] { display: none !important; }
+  .signup-grid { display: grid; gap: 1rem; margin-top: 2.25rem; text-align: left; }
+  @media (min-width: 560px) { .signup-grid { grid-template-columns: 1fr 1fr; } }
+  .signup-grid .full { grid-column: 1 / -1; }
+  .field label { display: block; font-size: .82rem; font-weight: 500; color: #cbd5e1; margin-bottom: .45rem; }
+  .field .opt { color: var(--faint); font-weight: 400; }
+  .input {
+    width: 100%; border-radius: .9rem; padding: .75rem 1rem;
+    font: inherit; font-size: .95rem; color: #f1f5f9;
+    background: rgba(255,255,255,.04);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.09);
+    outline: none; transition: box-shadow .4s var(--ease-fluid), background-color .4s var(--ease-fluid);
+  }
+  .input::placeholder { color: #475569; }
+  .input:hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
+  .input:focus { background: rgba(20,184,166,.05); box-shadow: inset 0 0 0 1px rgba(45,212,191,.55), 0 0 0 4px rgba(20,184,166,.12); }
+  .form-note { text-align: center; margin-top: 1rem; font-size: .8rem; color: var(--faint); }
+  .success { text-align: center; padding: 1rem 0; }
+  .success-icon { display: inline-flex; width: 3rem; height: 3rem; align-items: center; justify-content: center; border-radius: 9999px; color: var(--teal-pale); background: rgba(20,184,166,.12); box-shadow: inset 0 0 0 1px rgba(45,212,191,.25); }
+  .success-title { margin-top: 1rem; font-size: 1.35rem; font-weight: 600; }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     html { scroll-behavior: auto; }
@@ -258,7 +280,7 @@
         <a href="#industries">Industries</a>
       </div>
       <div class="nav-cta">
-        <a href="#how-it-works" class="nav-get">
+        <a href="#get-started" class="nav-get">
           Get started
           <span class="btn-disc">
             <svg class="icon" style="width:.875rem;height:.875rem;stroke-width:1.8" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>
@@ -295,7 +317,7 @@
           answers their questions, captures leads, and books appointments — 24/7.
         </p>
         <div class="hero-actions reveal" style="transition-delay:.24s">
-          <a href="#how-it-works" class="btn-primary">
+          <a href="#get-started" class="btn-primary">
             Set up your AI receptionist
             <span class="btn-disc"><svg class="icon" style="width:1rem;height:1rem" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
           </a>
@@ -442,18 +464,40 @@
       </div>
     </section>
 
-    <!-- CTA -->
-    <section class="block" id="get-started" style="padding-top:0; padding-bottom:8rem; max-width:64rem">
+    <!-- CTA / signup -->
+    <section class="block" id="get-started" style="padding-top:0; padding-bottom:8rem; max-width:60rem">
       <div class="reveal"><div class="shell"><div class="core cta-core">
         <div class="mesh"></div>
         <span class="eyebrow">Ten minutes to set up</span>
-        <h2 class="title display">Your next missed call could be answered</h2>
-        <p class="section-sub">Create your business profile, add your FAQs and hours, and forward your missed calls.</p>
-        <div style="margin-top:2.5rem; display:flex; justify-content:center">
-          <a href="#how-it-works" class="btn-primary" style="font-size:1rem">
-            Get started free
-            <span class="btn-disc"><svg class="icon" style="width:1rem;height:1rem" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
-          </a>
+        <h2 class="title display">Get your AI receptionist</h2>
+        <p class="section-sub">Tell us where to reach you and we&rsquo;ll set it up — business profile, FAQs, hours, and call forwarding.</p>
+
+        <form id="signupForm" class="signup-grid" novalidate>
+          <div class="field">
+            <label for="su-business">Business name</label>
+            <input id="su-business" name="business" class="input" required placeholder="Riverside Dental" autocomplete="organization">
+          </div>
+          <div class="field">
+            <label for="su-phone">Phone <span class="opt">(optional)</span></label>
+            <input id="su-phone" name="phone" class="input" type="tel" placeholder="+1 555 123 4567" autocomplete="tel">
+          </div>
+          <div class="field full">
+            <label for="su-email">Your email</label>
+            <input id="su-email" name="email" class="input" type="email" required placeholder="you@business.com" autocomplete="email">
+          </div>
+          <div class="full" style="display:flex; justify-content:center; margin-top:.25rem">
+            <button type="submit" class="btn-primary" style="font-size:1rem">
+              Get started free
+              <span class="btn-disc"><svg class="icon" style="width:1rem;height:1rem" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+            </button>
+          </div>
+          <p class="form-note full">No credit card. We&rsquo;ll reach out to finish setup.</p>
+        </form>
+
+        <div id="signupDone" class="success" hidden>
+          <span class="success-icon"><svg class="icon" style="width:1.5rem;height:1.5rem" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+          <h3 class="display success-title">You&rsquo;re all set</h3>
+          <p class="section-sub" style="margin-top:.5rem">Thanks — we&rsquo;ll be in touch shortly to get your AI receptionist live.</p>
         </div>
       </div></div></div>
     </section>
@@ -525,6 +569,50 @@
     { rootMargin: "-60px 0px" },
   );
   document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+  // Signup form.
+  // For silent background capture, set LEAD_ENDPOINT to a form service URL
+  // (e.g. a Formspree "https://formspree.io/f/XXXX" or Web3Forms endpoint).
+  // While it's empty, submissions open a pre-filled email to LEAD_EMAIL so
+  // the form works immediately with zero backend.
+  const LEAD_ENDPOINT = "";
+  const LEAD_EMAIL = "support@attune-dating.com";
+  const signupForm = document.getElementById("signupForm");
+  const signupDone = document.getElementById("signupDone");
+
+  const showSignupDone = () => {
+    signupForm.hidden = true;
+    signupDone.hidden = false;
+  };
+
+  signupForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!signupForm.reportValidity()) return;
+    const data = new FormData(signupForm);
+    const business = (data.get("business") || "").toString().trim();
+    const email = (data.get("email") || "").toString().trim();
+    const phone = (data.get("phone") || "").toString().trim();
+
+    if (LEAD_ENDPOINT) {
+      try {
+        const res = await fetch(LEAD_ENDPOINT, {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          body: data,
+        });
+        if (res.ok) return showSignupDone();
+      } catch (_) {
+        /* fall through to email */
+      }
+    }
+
+    const subject = encodeURIComponent(`AlwaysHere setup — ${business || "New lead"}`);
+    const body = encodeURIComponent(
+      `Business: ${business || "—"}\nEmail: ${email}\nPhone: ${phone || "—"}\n\nI'd like to get my AI receptionist set up.`,
+    );
+    window.location.href = `mailto:${LEAD_EMAIL}?subject=${subject}&body=${body}`;
+    showSignupDone();
+  });
 </script>
 </body>
 </html>
