@@ -5,155 +5,526 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AlwaysHere — AI receptionist for missed calls</title>
 <meta name="description" content="An AI receptionist that answers your missed business calls, speaks your customers' language, answers questions, captures leads, and books appointments — 24/7.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2314b8a6'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle'%3E%E2%98%8E%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2314b8a6'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle'%3E%E2%98%8E%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #020617; --panel: #0f172a; --panel-soft: rgba(15, 23, 42, .5);
-    --border: #1e293b; --border-soft: #334155;
-    --text: #f1f5f9; --muted: #94a3b8; --faint: #64748b;
-    --teal: #14b8a6; --teal-bright: #2dd4bf; --teal-hover: #0d9488;
+    --ink: #030509; --ink-soft: #060b14; --panel: #0a1120;
+    --mist: #94a3b8; --faint: #64748b;
+    --teal: #14b8a6; --teal-bright: #2dd4bf; --teal-pale: #5eead4;
+    --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--ink); color: #f1f5f9;
+    font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
     line-height: 1.5; -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
   }
-  a { text-decoration: none; color: inherit; }
-  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1.5rem; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: rgba(45,212,191,.28); color: #f0fdfa; }
+  .display { font-family: "Space Grotesk", "Geist", sans-serif; letter-spacing: -0.02em; }
+  .wrap { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
 
-  header.site { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 0; }
-  .logo { display: flex; align-items: center; gap: .5rem; font-weight: 600; font-size: 1.125rem; letter-spacing: -.01em; }
-  .logo-mark { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: .5rem; background: var(--teal); color: var(--bg); }
-  nav.site { display: flex; align-items: center; gap: .75rem; }
-  .btn { display: inline-block; border-radius: .5rem; padding: .5rem 1rem; font-size: .875rem; font-weight: 500; }
-  .btn-ghost { color: #cbd5e1; }
-  .btn-ghost:hover { color: #fff; }
-  .btn-primary { background: var(--teal); color: var(--bg); font-weight: 600; }
-  .btn-primary:hover { background: var(--teal-bright); }
-
-  .hero { padding: 4rem 0 5rem; text-align: center; }
-  .badge {
-    display: inline-block; margin-bottom: 1.5rem; padding: .25rem 1rem; border-radius: 9999px;
-    border: 1px solid rgba(20, 184, 166, .4); background: rgba(20, 184, 166, .1);
-    color: #5eead4; font-size: .875rem;
+  /* Double-bezel card */
+  .shell {
+    border-radius: 1.75rem; padding: .375rem;
+    background: rgba(255,255,255,.03);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
   }
-  h1 { max-width: 48rem; margin: 0 auto; font-size: clamp(2.25rem, 6vw, 3.75rem); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
-  h1 .accent { color: var(--teal-bright); }
-  .hero p.sub { max-width: 42rem; margin: 1.5rem auto 0; font-size: 1.125rem; color: var(--muted); }
+  .core {
+    border-radius: 1.375rem; height: 100%;
+    background: rgba(10,17,32,.82);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.07), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .hairline { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: .5rem;
+    border-radius: 9999px; padding: .3rem .85rem;
+    font-size: 10px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--teal-pale); background: rgba(20,184,166,.08);
+    box-shadow: inset 0 0 0 1px rgba(45,212,191,.25);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: .75rem;
+    border-radius: 9999px; padding: .8rem .8rem .8rem 1.6rem; font-weight: 600; color: #021210;
+    background: linear-gradient(180deg, #3ee6d0, #14b8a6);
+    box-shadow: 0 0 0 1px rgba(45,212,191,.35), 0 10px 34px -12px rgba(20,184,166,.55), inset 0 1px 0 rgba(255,255,255,.35);
+    transition: transform .5s var(--ease-fluid), box-shadow .5s var(--ease-fluid), filter .5s var(--ease-fluid);
+  }
+  .btn-primary:hover { filter: brightness(1.06); box-shadow: 0 0 0 1px rgba(45,212,191,.5), 0 14px 44px -12px rgba(20,184,166,.75), inset 0 1px 0 rgba(255,255,255,.35); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: .6rem;
+    border-radius: 9999px; padding: .8rem 1.6rem; font-weight: 500; color: #cbd5e1;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+    transition: all .5s var(--ease-fluid);
+  }
+  .btn-ghost:hover { color: #fff; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+  .btn-ghost:active { transform: scale(.98); }
+  .btn-disc {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2rem; height: 2rem; border-radius: 9999px; background: rgba(2,18,16,.18);
+    transition: transform .5s var(--ease-spring);
+  }
+  .btn-primary:hover .btn-disc { transform: translate(2px,-1px) scale(1.05); }
+  .icon { width: 1.25rem; height: 1.25rem; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Nav */
+  .nav-fix { position: fixed; inset-inline: 0; top: 0; z-index: 40; display: flex; justify-content: center; padding: 0 1rem; }
+  nav.pill {
+    margin-top: 1.25rem; display: flex; align-items: center; justify-content: space-between;
+    width: 100%; max-width: 48rem; border-radius: 9999px;
+    background: rgba(3,5,9,.55); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    padding: .5rem .75rem; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .logo { display: flex; align-items: center; gap: .625rem; padding-left: .5rem; font-weight: 600; font-size: 15px; color: #fff; }
+  .logo-mark {
+    display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9999px;
+    background: linear-gradient(180deg, #5eead4, #14b8a6); color: var(--ink);
+    box-shadow: 0 0 18px rgba(45,212,191,.45);
+  }
+  .nav-links { display: none; align-items: center; gap: .25rem; }
+  .nav-links a { border-radius: 9999px; padding: .5rem .875rem; font-size: .875rem; color: #94a3b8; transition: color .5s var(--ease-fluid); }
+  .nav-links a:hover { color: #fff; }
+  .nav-cta { display: none; align-items: center; gap: .5rem; }
+  .nav-get {
+    display: flex; align-items: center; gap: .5rem; border-radius: 9999px;
+    background: linear-gradient(180deg, #5eead4, #14b8a6); color: var(--ink);
+    padding: .5rem .5rem .5rem 1rem; font-size: .875rem; font-weight: 600;
+    transition: transform .5s var(--ease-fluid);
+  }
+  .nav-get:active { transform: scale(.97); }
+  .nav-get .btn-disc { width: 1.5rem; height: 1.5rem; }
+  .burger { position: relative; display: flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 9999px; background: none; border: none; cursor: pointer; }
+  .burger span { position: absolute; height: 1px; width: 18px; background: #fff; transition: all .5s var(--ease-fluid); }
+  .burger span:nth-child(1) { transform: translateY(-3.5px); }
+  .burger span:nth-child(2) { transform: translateY(3.5px); }
+  .menu-open .burger span:nth-child(1) { transform: rotate(45deg); }
+  .menu-open .burger span:nth-child(2) { transform: rotate(-45deg); }
+  @media (min-width: 768px) {
+    .nav-links, .nav-cta { display: flex; }
+    .burger { display: none; }
+  }
+  .overlay {
+    position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; justify-content: center;
+    padding: 0 2rem; background: rgba(3,5,9,.85); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+    opacity: 0; pointer-events: none; transition: opacity .5s var(--ease-fluid);
+  }
+  .menu-open .overlay { opacity: 1; pointer-events: auto; }
+  .overlay a {
+    padding: .75rem 0; font-family: "Space Grotesk", sans-serif; font-size: 1.875rem; font-weight: 600; color: #fff;
+    transform: translateY(2.5rem); opacity: 0; transition: all .7s var(--ease-fluid);
+  }
+  .menu-open .overlay a { transform: translateY(0); opacity: 1; }
+
+  /* Hero */
+  .hero { position: relative; display: flex; min-height: 100dvh; flex-direction: column; align-items: center; justify-content: center; padding: 9rem 1rem 6rem; text-align: center; }
+  .hero-bg { position: absolute; inset: 0; overflow: hidden; }
+  .hero-bg .grad { position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 0%, rgba(20,184,166,.16), transparent 65%); }
+  .hero-bg video {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; transition: opacity 2s ease-out;
+  }
+  .hero-bg video.on { opacity: .6; }
+  .hero-bg .scrim-a { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3,5,9,.7), rgba(3,5,9,.35) 50%, var(--ink)); }
+  .hero-bg .scrim-b { position: absolute; inset: 0; background: radial-gradient(70% 50% at 50% 45%, transparent 30%, rgba(3,5,9,.55) 100%); }
+  .hero-inner { position: relative; z-index: 10; max-width: 56rem; margin: 0 auto; }
+  h1 { font-size: clamp(3rem, 8vw, 4.75rem); font-weight: 600; line-height: 1.04; }
+  .grad-text { background: linear-gradient(90deg, #99f6e4, #2dd4bf, #67e8f9); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.sub { max-width: 42rem; margin: 1.75rem auto 0; font-size: 1.125rem; color: var(--mist); }
   .hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem; margin-top: 2.5rem; }
-  .cta { border-radius: .75rem; padding: .75rem 1.5rem; font-size: 1rem; font-weight: 600; }
-  .cta-primary { background: var(--teal); color: var(--bg); }
-  .cta-primary:hover { background: var(--teal-bright); }
-  .cta-secondary { border: 1px solid var(--border-soft); color: #cbd5e1; font-weight: 500; }
-  .cta-secondary:hover { border-color: var(--faint); color: #fff; }
+  .kicker { margin-top: 3rem; font-size: .75rem; letter-spacing: .25em; text-transform: uppercase; color: var(--faint); }
 
-  section.band { border-top: 1px solid var(--border); background: var(--panel-soft); }
-  .section { padding: 5rem 0; }
-  h2 { text-align: center; font-size: clamp(1.5rem, 4vw, 1.875rem); font-weight: 700; letter-spacing: -.01em; }
-  .section-sub { margin-top: .75rem; text-align: center; color: var(--muted); }
+  @keyframes glowPulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+  .pulse { animation: glowPulse 4s ease-in-out infinite; }
+  @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .float { animation: floatY 7s ease-in-out infinite; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes ping { 75%,100% { transform: scale(2.2); opacity: 0; } }
 
-  .grid { display: grid; gap: 1.5rem; margin-top: 3rem; grid-template-columns: repeat(3, 1fr); }
-  @media (max-width: 56rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 36rem) { .grid { grid-template-columns: 1fr; } }
-  .card { border: 1px solid var(--border); background: var(--panel); border-radius: 1rem; padding: 1.5rem; }
-  .step-num {
-    display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem;
-    border-radius: 9999px; background: rgba(20, 184, 166, .15); color: var(--teal-bright);
-    font-size: .875rem; font-weight: 700;
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(28px); filter: blur(6px); transition: opacity .9s var(--ease-expo), transform .9s var(--ease-expo), filter .9s var(--ease-expo); }
+  .reveal.in { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+  /* Sections */
+  section.block { position: relative; max-width: 72rem; margin: 0 auto; padding: 7rem 1rem; scroll-margin-top: 6rem; }
+  .center { text-align: center; }
+  h2.title { font-size: clamp(1.875rem, 5vw, 3rem); font-weight: 600; line-height: 1.15; margin: 1.5rem auto 0; max-width: 42rem; }
+  .section-sub { margin: 1.25rem auto 0; max-width: 36rem; color: var(--mist); }
+  .mesh { position: absolute; border-radius: 9999px; filter: blur(90px); pointer-events: none; }
+
+  /* Bento grid */
+  .grid { display: grid; gap: 1rem; margin-top: 4rem; }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) {
+    .grid.how { grid-template-columns: repeat(12, 1fr); }
+    .grid.how > .reveal { grid-column: span 3; }
+    .grid.how > .reveal:nth-child(1), .grid.how > .reveal:nth-child(6) { grid-column: span 6; }
+    .grid.feat { grid-template-columns: repeat(3, 1fr); }
   }
-  .card h3 { margin-top: 1rem; font-size: 1rem; font-weight: 600; color: #fff; }
-  .card.feature h3 { margin-top: 0; color: var(--teal-bright); }
-  .card p { margin-top: .5rem; font-size: .875rem; color: var(--muted); }
-  ol.grid { list-style: none; }
+  .card { height: 100%; transition: transform .7s var(--ease-fluid); }
+  .card:hover { transform: translateY(-6px); }
+  .card .core { display: flex; flex-direction: column; padding: 1.75rem; }
+  .chip-ico {
+    display: flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem;
+    border-radius: 9999px; background: rgba(45,212,191,.1); color: var(--teal-bright);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    transition: transform .7s var(--ease-spring);
+  }
+  .card:hover .chip-ico { transform: scale(1.1); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .card-num { font-family: "Space Grotesk", sans-serif; font-size: .875rem; color: #475569; }
+  .card h3 { margin-top: 1.5rem; font-family: "Space Grotesk", sans-serif; font-size: 1.125rem; font-weight: 500; color: #fff; }
+  .card p { margin-top: .5rem; font-size: .875rem; color: var(--mist); }
 
-  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: 2rem; }
-  .chip { border: 1px solid var(--border-soft); background: var(--panel); border-radius: 9999px; padding: .5rem 1rem; font-size: .875rem; color: #cbd5e1; }
+  /* Showcase */
+  .split { display: grid; gap: 3.5rem; align-items: center; margin-top: 0; }
+  @media (min-width: 1024px) { .split { grid-template-columns: 1fr 1fr; } }
+  .checks { margin-top: 2rem; list-style: none; }
+  .checks li { display: flex; align-items: center; gap: .75rem; padding: .375rem 0; font-size: .875rem; color: #cbd5e1; }
+  .check-dot { display: flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: rgba(45,212,191,.1); color: var(--teal-bright); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); flex-shrink: 0; }
+  .check-dot .icon { width: .875rem; height: .875rem; }
+  .chatcard .core { padding: 1.75rem; display: block; }
+  .chat-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 1rem; }
+  .live { position: relative; display: inline-flex; width: .625rem; height: .625rem; margin-right: .75rem; }
+  .live::before { content: ""; position: absolute; inset: 0; border-radius: 9999px; background: var(--teal-bright); opacity: .6; animation: ping 1.8s cubic-bezier(0,0,.2,1) infinite; }
+  .live::after { content: ""; position: relative; width: .625rem; height: .625rem; border-radius: 9999px; background: var(--teal-bright); }
+  .bubble-row { display: flex; margin-top: 1rem; }
+  .bubble-row.me { justify-content: flex-end; }
+  .bubble { max-width: 85%; border-radius: 1rem; padding: .625rem 1rem; font-size: .875rem; line-height: 1.5; }
+  .bubble.ai { border-bottom-left-radius: .375rem; background: rgba(45,212,191,.1); color: #ccfbf1; box-shadow: inset 0 0 0 1px rgba(45,212,191,.18); }
+  .bubble.me { border-bottom-right-radius: .375rem; background: rgba(255,255,255,.08); color: #e2e8f0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .chat-foot { display: flex; align-items: center; gap: .5rem; margin-top: 1.25rem; border-top: 1px solid rgba(255,255,255,.05); padding-top: 1rem; font-size: .75rem; color: var(--faint); }
+  .chat-foot .icon { width: 1rem; height: 1rem; color: rgba(94,234,212,.7); }
 
-  .cta-final { padding: 6rem 0; text-align: center; }
-  .cta-final p { max-width: 36rem; margin: 1rem auto 0; color: var(--muted); }
-  .cta-final .cta-primary { display: inline-block; margin-top: 2rem; border-radius: .75rem; padding: 1rem 2rem; font-size: 1.125rem; font-weight: 600; }
+  /* Marquee band */
+  .band { border-top: 1px solid rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.05); background: rgba(6,11,20,.6); padding: 5rem 0; }
+  .marquee-mask { margin-top: 3rem; overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent); mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent); }
+  .marquee { display: flex; gap: 1rem; width: max-content; animation: marquee 42s linear infinite; }
+  .marquee:hover { animation-play-state: paused; }
+  .gcard { flex-shrink: 0; }
+  .gcard .core { padding: 1rem 1.5rem; display: block; }
+  .gcard .lang { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(94,234,212,.8); }
+  .gcard .txt { margin-top: .375rem; font-size: .875rem; color: #e2e8f0; }
 
-  footer.site { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; font-size: .875rem; color: var(--faint); }
-  footer.site a { color: var(--muted); text-decoration: underline; }
+  /* Industries */
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: 3rem; }
+  .chip {
+    border-radius: 9999px; background: rgba(255,255,255,.03); padding: .625rem 1.25rem; font-size: .875rem; color: #cbd5e1;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    transition: all .5s var(--ease-fluid);
+  }
+  .chip:hover { transform: translateY(-2px); background: rgba(45,212,191,.1); color: #99f6e4; }
+
+  /* CTA */
+  .cta-core { position: relative; overflow: hidden; padding: 5rem 2rem; text-align: center; display: block; }
+  @media (min-width: 640px) { .cta-core { padding: 5rem 4rem; } }
+  .cta-core .mesh { left: 50%; top: 0; height: 18rem; width: 36rem; transform: translate(-50%, -50%); background: rgba(20,184,166,.15); }
+
+  footer { border-top: 1px solid rgba(255,255,255,.05); padding: 2.5rem 0; text-align: center; font-size: .875rem; color: var(--faint); }
+  footer a { color: var(--mist); text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    html { scroll-behavior: auto; }
+    .hero-bg video { display: none; }
+    .reveal { opacity: 1; transform: none; filter: none; }
+  }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <header class="site">
-    <div class="logo"><span class="logo-mark">☎</span> AlwaysHere</div>
-    <nav class="site">
-      <a class="btn btn-primary" href="#how-it-works">Get started</a>
+<div id="shellRoot">
+  <div class="nav-fix">
+    <nav class="pill">
+      <a href="#top" class="logo">
+        <span class="logo-mark">
+          <svg class="icon" style="width:1rem;height:1rem;stroke-width:1.8" viewBox="0 0 24 24"><path d="M4.5 5.5c0-1.1.9-2 2-2h1.6c.5 0 .9.3 1 .8l.8 3a1 1 0 0 1-.5 1.1l-1.3.8a12.5 12.5 0 0 0 5.7 5.7l.8-1.3a1 1 0 0 1 1.1-.5l3 .8c.5.1.8.5.8 1v1.6a2 2 0 0 1-2 2C10.2 18.5 5.5 13.8 4.5 5.5Z"/></svg>
+        </span>
+        AlwaysHere
+      </a>
+      <div class="nav-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#industries">Industries</a>
+      </div>
+      <div class="nav-cta">
+        <a href="#how-it-works" class="nav-get">
+          Get started
+          <span class="btn-disc">
+            <svg class="icon" style="width:.875rem;height:.875rem;stroke-width:1.8" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </span>
+        </a>
+      </div>
+      <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
     </nav>
-  </header>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <a href="#how-it-works" style="transition-delay:.1s">How it works</a>
+    <a href="#features" style="transition-delay:.16s">Features</a>
+    <a href="#industries" style="transition-delay:.22s">Industries</a>
+    <a href="#get-started" style="transition-delay:.28s">Get started</a>
+  </div>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="grad"></div>
+        <video id="heroVideo" src="hero.mp4" poster="hero-poster.jpg" autoplay muted loop playsinline preload="auto"></video>
+        <div class="scrim-a"></div>
+        <div class="scrim-b"></div>
+      </div>
+      <div class="hero-inner">
+        <span class="eyebrow pulse reveal">Your AI receptionist · Always on</span>
+        <h1 class="display reveal" style="transition-delay:.08s; margin-top:1.75rem">
+          Never lose a customer because you <span class="grad-text">missed the phone</span>
+        </h1>
+        <p class="sub reveal" style="transition-delay:.16s">
+          AlwaysHere answers your missed business calls, speaks your customers&rsquo; language,
+          answers their questions, captures leads, and books appointments — 24/7.
+        </p>
+        <div class="hero-actions reveal" style="transition-delay:.24s">
+          <a href="#how-it-works" class="btn-primary">
+            Set up your AI receptionist
+            <span class="btn-disc"><svg class="icon" style="width:1rem;height:1rem" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+          </a>
+          <a href="#how-it-works" class="btn-ghost">How it works</a>
+        </div>
+        <p class="kicker reveal" style="transition-delay:.34s">Every missed call is a customer deciding to call your competitor</p>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="block" id="how-it-works">
+      <div class="mesh" style="left:-10rem; top:2.5rem; height:20rem; width:20rem; background:rgba(20,184,166,.1)"></div>
+      <div class="center reveal">
+        <span class="eyebrow">How it works</span>
+        <h2 class="title display">Nothing to install. Nothing changes for your callers.</h2>
+      </div>
+      <div class="grid how">
+        <div class="reveal"><div class="shell card"><div class="core">
+          <div class="card-top"><span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><path d="M4.5 5.5c0-1.1.9-2 2-2h1.6c.5 0 .9.3 1 .8l.8 3a1 1 0 0 1-.5 1.1l-1.3.8a12.5 12.5 0 0 0 5.7 5.7l.8-1.3a1 1 0 0 1 1.1-.5l3 .8c.5.1.8.5.8 1v1.6a2 2 0 0 1-2 2C10.2 18.5 5.5 13.8 4.5 5.5Z"/></svg></span><span class="card-num">01</span></div>
+          <h3>Customer calls your business</h3><p>Your number, your line — nothing changes for callers.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.07s"><div class="shell card"><div class="core">
+          <div class="card-top"><span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2.5"/></svg></span><span class="card-num">02</span></div>
+          <h3>You can&rsquo;t pick up</h3><p>Busy chair, after hours, out on a job.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.14s"><div class="shell card"><div class="core">
+          <div class="card-top"><span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><path d="M4 17.5c.6-4.8 3-7.5 8-7.5V6l8 6.2-8 6.2v-4c-3.5 0-6 .9-8 3.1Z"/></svg></span><span class="card-num">03</span></div>
+          <h3>The call forwards automatically</h3><p>Carrier-level conditional forwarding to your AlwaysHere number.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.21s"><div class="shell card"><div class="core">
+          <div class="card-top"><span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.3 3.5 5.2 3.5 8.5s-1.2 6.2-3.5 8.5c-2.3-2.3-3.5-5.2-3.5-8.5s1.2-6.2 3.5-8.5Z"/></svg></span><span class="card-num">04</span></div>
+          <h3>The AI answers in their language</h3><p>Trained on your services, prices, hours and policies.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.28s"><div class="shell card"><div class="core">
+          <div class="card-top"><span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v3m7-3v3"/></svg></span><span class="card-num">05</span></div>
+          <h3>It answers, books, or escalates</h3><p>Questions answered, appointments booked, urgent calls flagged instantly.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.35s"><div class="shell card"><div class="core">
+          <div class="card-top"><span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="12" rx="3"/><path d="m6.5 8 5.5 4 5.5-4M9 20h6"/></svg></span><span class="card-num">06</span></div>
+          <h3>You get the summary by SMS</h3><p>Who called, what they needed, what happened — plus the full transcript.</p>
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- SHOWCASE -->
+    <section class="block">
+      <div class="mesh" style="right:-10rem; top:33%; height:24rem; width:24rem; background:rgba(6,182,212,.1)"></div>
+      <div class="split">
+        <div>
+          <div class="reveal">
+            <span class="eyebrow">Hear the difference</span>
+            <h2 class="title display" style="margin-left:0; text-align:left">A real conversation, <span style="color:var(--teal-bright)">not a phone tree</span></h2>
+            <p class="section-sub" style="margin-left:0; text-align:left">
+              No &ldquo;press 1 for appointments.&rdquo; Callers just talk — the AI understands, checks your
+              real availability, books the slot, and texts the confirmation before they hang up.
+            </p>
+          </div>
+          <ul class="checks reveal" style="transition-delay:.15s">
+            <li><span class="check-dot"><svg class="icon" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>Answers from your own FAQs and prices</li>
+            <li><span class="check-dot"><svg class="icon" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>Books against your real opening hours</li>
+            <li><span class="check-dot"><svg class="icon" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>Escalates emergencies to your phone instantly</li>
+          </ul>
+        </div>
+        <div class="reveal" style="transition-delay:.1s">
+          <div class="shell float chatcard"><div class="core">
+            <div class="chat-head">
+              <p style="display:flex;align-items:center;font-size:.875rem;font-weight:500;color:#fff"><span class="live"></span>Incoming missed call · 6:42 PM</p>
+              <svg class="icon" style="width:1rem;height:1rem;color:var(--teal-bright)" viewBox="0 0 24 24"><path d="M4 12h2l2-5 3 10 3-14 3 12 1.5-3H20"/></svg>
+            </div>
+            <div class="bubble-row reveal" style="transition-delay:.25s"><p class="bubble ai">Hello, you've reached Riverside Dental. The team can't pick up right now — I'm their assistant and I can help. How can I help?</p></div>
+            <div class="bubble-row me reveal" style="transition-delay:.37s"><p class="bubble me">Hi — my crown just came off, can I get in tomorrow morning?</p></div>
+            <div class="bubble-row reveal" style="transition-delay:.49s"><p class="bubble ai">Sorry to hear that! We have 9:00, 9:30 or 11:00 tomorrow morning for an emergency visit. Which works best?</p></div>
+            <div class="bubble-row me reveal" style="transition-delay:.61s"><p class="bubble me">9:00, please. It's Maria Lopez.</p></div>
+            <div class="bubble-row reveal" style="transition-delay:.73s"><p class="bubble ai">Booked — tomorrow at 9:00 AM with Dr. Rivera. I've texted you a confirmation, Maria. Anything else?</p></div>
+            <div class="chat-foot reveal" style="transition-delay:.9s">
+              <svg class="icon" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="12" rx="3"/><path d="m6.5 8 5.5 4 5.5-4M9 20h6"/></svg>
+              Confirmation SMS sent · Summary texted to the owner
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="block" id="features">
+      <div class="center reveal">
+        <span class="eyebrow">Everything handled</span>
+        <h2 class="title display">A receptionist that never sleeps</h2>
+        <p class="section-sub">For less than an hour of staff time.</p>
+      </div>
+      <div class="grid feat">
+        <div class="reveal"><div class="shell card"><div class="core">
+          <span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2.5"/></svg></span>
+          <h3>24/7 answering</h3><p>Every missed call is answered in seconds, day or night.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.06s"><div class="shell card"><div class="core">
+          <span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.3 3.5 5.2 3.5 8.5s-1.2 6.2-3.5 8.5c-2.3-2.3-3.5-5.2-3.5-8.5s1.2-6.2 3.5-8.5Z"/></svg></span>
+          <h3>Multilingual</h3><p>Nine languages, switched mid-call the moment your caller changes tongue.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.12s"><div class="shell card"><div class="core">
+          <span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v3m7-3v3"/></svg></span>
+          <h3>Appointment booking</h3><p>Real availability from your opening hours and calendar, confirmed by SMS.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.18s"><div class="shell card"><div class="core">
+          <span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><circle cx="9.5" cy="8.5" r="3"/><path d="M4 19c.5-3 2.7-4.5 5.5-4.5S14.5 16 15 19M15.5 5.8a3 3 0 0 1 0 5.4M17.5 14.7c1.6.7 2.6 2 3 4.3"/></svg></span>
+          <h3>Lead capture</h3><p>Name, number and reason for calling saved for every caller you&rsquo;d have lost.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.24s"><div class="shell card"><div class="core">
+          <span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H19v13.5H7.5A2.5 2.5 0 0 0 5 20V6.5Z"/><path d="M5 17.5A2.5 2.5 0 0 1 7.5 15H19"/></svg></span>
+          <h3>Your knowledge base</h3><p>FAQs, services and pricing you control from a simple dashboard.</p>
+        </div></div></div>
+        <div class="reveal" style="transition-delay:.3s"><div class="shell card"><div class="core">
+          <span class="chip-ico"><svg class="icon" viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Zm0 6v4m0 3v.01"/></svg></span>
+          <h3>Urgent escalation</h3><p>Emergencies trigger an instant SMS alert to your phone.</p>
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- MULTILINGUAL BAND -->
+    <section class="band">
+      <div class="wrap center reveal">
+        <span class="eyebrow">Nine languages, one number</span>
+        <h2 class="title display">Your callers switch languages. <span style="color:var(--teal-bright)">So does it.</span></h2>
+      </div>
+      <div class="marquee-mask">
+        <div class="marquee" id="marquee">
+          <!-- greetings injected twice by JS for a seamless loop -->
+        </div>
+      </div>
+    </section>
+
+    <!-- INDUSTRIES -->
+    <section class="block" id="industries">
+      <div class="center reveal">
+        <span class="eyebrow">Built for the phone-first</span>
+        <h2 class="title display">Businesses that live on the phone</h2>
+      </div>
+      <div class="chips reveal" style="transition-delay:.15s">
+        <span class="chip">Dental clinics</span><span class="chip">Medical practices</span>
+        <span class="chip">Auto repair</span><span class="chip">Salons &amp; barbers</span>
+        <span class="chip">Plumbing</span><span class="chip">Electricians</span>
+        <span class="chip">HVAC</span><span class="chip">Real estate</span>
+        <span class="chip">Law firms</span><span class="chip">Cleaning services</span>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="block" id="get-started" style="padding-top:0; padding-bottom:8rem; max-width:64rem">
+      <div class="reveal"><div class="shell"><div class="core cta-core">
+        <div class="mesh"></div>
+        <span class="eyebrow">Ten minutes to set up</span>
+        <h2 class="title display">Your next missed call could be answered</h2>
+        <p class="section-sub">Create your business profile, add your FAQs and hours, and forward your missed calls.</p>
+        <div style="margin-top:2.5rem; display:flex; justify-content:center">
+          <a href="#how-it-works" class="btn-primary" style="font-size:1rem">
+            Get started free
+            <span class="btn-disc"><svg class="icon" style="width:1rem;height:1rem" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
+          </a>
+        </div>
+      </div></div></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      © <span id="year">2026</span> AlwaysHere. Never miss another customer call. ·
+      <a href="https://github.com/othmanemouadi/AlwaysHere">Source on GitHub</a>
+    </div>
+  </footer>
 </div>
 
-<section class="hero wrap">
-  <span class="badge">Every missed call is a customer deciding to call your competitor</span>
-  <h1>Never lose a customer because you <span class="accent">missed the phone</span></h1>
-  <p class="sub">AlwaysHere is an AI receptionist that answers your missed business calls, speaks your
-    customers&rsquo; language, answers their questions, captures leads, and books appointments — 24/7.</p>
-  <div class="hero-actions">
-    <a class="cta cta-primary" href="#how-it-works">Set up your AI receptionist</a>
-    <a class="cta cta-secondary" href="#how-it-works">How it works</a>
-  </div>
-</section>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-<section class="band" id="how-it-works">
-  <div class="wrap section">
-    <h2>How it works</h2>
-    <p class="section-sub">No new hardware, no app for your customers, nothing to install.</p>
-    <ol class="grid">
-      <li class="card"><span class="step-num">1</span><h3>Customer calls your business</h3><p>Your number, your line — nothing changes for callers.</p></li>
-      <li class="card"><span class="step-num">2</span><h3>You can&rsquo;t pick up</h3><p>Busy chair, after hours, out on a job.</p></li>
-      <li class="card"><span class="step-num">3</span><h3>The call forwards automatically</h3><p>Carrier-level conditional forwarding to your AlwaysHere number.</p></li>
-      <li class="card"><span class="step-num">4</span><h3>The AI answers in their language</h3><p>Trained on your services, prices, hours and policies.</p></li>
-      <li class="card"><span class="step-num">5</span><h3>It answers, books, or escalates</h3><p>Questions answered, appointments booked, urgent calls flagged instantly.</p></li>
-      <li class="card"><span class="step-num">6</span><h3>You get the summary by SMS</h3><p>Who called, what they needed, what happened — plus the full transcript.</p></li>
-    </ol>
-  </div>
-</section>
+  // Hero video fade-in (skipped entirely under reduced motion via CSS)
+  const video = document.getElementById("heroVideo");
+  const showVideo = () => video.classList.add("on");
+  if (video.readyState >= 3) showVideo();
+  video.addEventListener("canplay", showVideo);
+  video.play && video.play().catch(() => {});
 
-<section class="wrap section">
-  <h2>A receptionist that never sleeps, for less than an hour of staff time</h2>
-  <div class="grid">
-    <div class="card feature"><h3>24/7 answering</h3><p>Every missed call is answered in seconds, day or night.</p></div>
-    <div class="card feature"><h3>Multilingual</h3><p>English, Spanish, French, German, Portuguese, Italian, Mandarin, Arabic, Hindi — switched mid-call automatically.</p></div>
-    <div class="card feature"><h3>Appointment booking</h3><p>Real availability from your opening hours and calendar, confirmed by SMS.</p></div>
-    <div class="card feature"><h3>Lead capture</h3><p>Name, number and reason for calling saved for every caller you&rsquo;d have lost.</p></div>
-    <div class="card feature"><h3>Your knowledge base</h3><p>FAQs, services and pricing you control from a simple dashboard.</p></div>
-    <div class="card feature"><h3>Urgent escalation</h3><p>Emergencies trigger an instant SMS alert to your phone.</p></div>
-  </div>
-</section>
+  // Hamburger morph + overlay
+  const root = document.getElementById("shellRoot");
+  const burger = document.getElementById("burger");
+  burger.addEventListener("click", () => {
+    const open = root.classList.toggle("menu-open");
+    burger.setAttribute("aria-expanded", open);
+    document.documentElement.style.overflow = open ? "hidden" : "";
+  });
+  document.querySelectorAll("#overlay a").forEach((a) =>
+    a.addEventListener("click", () => {
+      root.classList.remove("menu-open");
+      document.documentElement.style.overflow = "";
+    }),
+  );
 
-<section class="band">
-  <div class="wrap section" style="text-align:center">
-    <h2>Built for businesses that live on the phone</h2>
-    <div class="chips">
-      <span class="chip">Dental clinics</span><span class="chip">Medical practices</span>
-      <span class="chip">Auto repair</span><span class="chip">Salons &amp; barbers</span>
-      <span class="chip">Plumbing</span><span class="chip">Electricians</span>
-      <span class="chip">HVAC</span><span class="chip">Real estate</span>
-      <span class="chip">Law firms</span><span class="chip">Cleaning services</span>
-    </div>
-  </div>
-</section>
+  // Multilingual marquee (duplicated for seamless loop)
+  const GREETINGS = [
+    ["English", "How can I help you today?"],
+    ["Español", "¿En qué puedo ayudarle hoy?"],
+    ["Français", "Comment puis-je vous aider ?"],
+    ["Deutsch", "Wie kann ich Ihnen helfen?"],
+    ["Português", "Como posso ajudar você?"],
+    ["Italiano", "Come posso aiutarla?"],
+    ["中文", "今天我能帮您什么？"],
+    ["العربية", "كيف يمكنني مساعدتك؟"],
+    ["हिन्दी", "मैं आपकी कैसे मदद कर सकती हूँ?"],
+  ];
+  const marquee = document.getElementById("marquee");
+  marquee.innerHTML = [...GREETINGS, ...GREETINGS]
+    .map(
+      ([lang, txt]) =>
+        `<div class="shell gcard"><div class="core"><p class="lang">${lang}</p><p class="txt">${txt}</p></div></div>`,
+    )
+    .join("");
 
-<section class="wrap cta-final">
-  <h2 style="font-size:clamp(1.875rem, 5vw, 2.25rem)">Your next missed call could be answered</h2>
-  <p>Create your business profile, add your FAQs and hours, and forward your missed calls.
-    It takes about ten minutes.</p>
-  <a class="cta-primary cta" href="#how-it-works">Get started free</a>
-</section>
-
-<footer class="site">
-  <div class="wrap">
-    © <span id="year">2026</span> AlwaysHere. Never miss another customer call. ·
-    <a href="https://github.com/othmanemouadi/AlwaysHere">Source on GitHub</a>
-  </div>
-</footer>
-
-<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  // Scroll reveals
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in");
+          observer.unobserve(entry.target);
+        }
+      }
+    },
+    { rootMargin: "-60px 0px" },
+  );
+  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+</script>
 </body>
 </html>
